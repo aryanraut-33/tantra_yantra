@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yantra Tantra</title>
+    
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    
+   
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    
+    <link rel="stylesheet" href="style.css">
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    
+    
+    <div id="cursor-light"></div>
+
+    <div class="container">
+        <header id="home-view">
+            <h1 class="name">Yantra Tantra</h1>
+            <p class="intro">Yantra (यन्त्र), literally means a <em>Machine</em>, and Tantra (तन्त्र) means <em>Technique.</em> <br> This blog is my effort to document my ML and DL concepts and share learnings along the way!</p>
+            
+            <div class="links">
+                <a href="https://github.com/your-username" target="_blank">GitHub</a>
+                <a href="https://linkedin.com/in/your-username" target="_blank">LinkedIn</a>
+            </div>
+            <h2 class="section-title">Some recent posts</h2>
+            <div id="post-list"></div>
+        </header>
+
+        <main id="post-view" style="display: none;"></main>
+
+        <footer>
+            <p><em>"Everything is matrix multiplication in disguise"</em> <br> ~Demis Hassabis</p>
+            <p>Feel free to quote!</p>
+        </footer>
+    </div>
+    
+    
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    
+    <script>
+        
+        const allPosts = [
+
+            {
+                "title": "Test",
+                "description": "Test is 200OK",
+                "date": "July 24, 2025",
+                "file": "p2"
+            },
+
+            {
+                "title": "Test2",
+                "description": "Test is 200OK",
+                "date": "July 25, 2025",
+                "file": "p1"
+            },
+
+            {
+                "title": "Test3",
+                "description": "Test is 200OK",
+                "date": "July 23, 2025",
+                "file": "p3"
+            },
+
+            {
+                "title": "Test4",
+                "description": "Test is 200OK",
+                "date": "July 26, 2025",
+                "file": "p4"
+            },
+
+            {
+                "title": "Test5",
+                "description": "Test is 200OK",
+                "date": "July 27, 2025",
+                "file": "p5"
+            },
+
+            {
+                "title": "Test6",
+                "description": "Test is 200OK",
+                "date": "July 28, 2025",
+                "file": "p6"
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            AOS.init({ once: true, duration: 800 }); // Initialize Animate On Scroll
+
+            const cursorLight = document.getElementById('cursor-light');
+            let mouseX = 0, mouseY = 0, lightX = 0, lightY = 0;
+            const speed = 0.08;
+
+            window.addEventListener('mousemove', e => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            function animate() {
+                lightX += (mouseX - lightX) * speed;
+                lightY += (mouseY - lightY) * speed;
+                cursorLight.style.transform = `translate(${lightX}px, ${lightY}px)`;
+                requestAnimationFrame(animate);
+            }
+            animate();
+
+            
+            const postList = document.getElementById('post-list');
+            const homeView = document.getElementById('home-view');
+            const postView = document.getElementById('post-view');
+
+            function displayPostList() {
+                postList.innerHTML = '';
+                allPosts.forEach(post => {
+                    const li = document.createElement('a');
+                    li.href = `#${post.file.replace('.md', '')}`;
+                    li.className = 'post-item';
+                    
+                    
+                    li.setAttribute('data-aos', 'fade-up'); 
+                    
+                    li.innerHTML = `
+                        <h3>${post.title}</h3>
+                        <p>${post.description}</p>
+                        <time>${post.date}</time>
+                    `;
+                    postList.appendChild(li);
+                });
+                
+                setTimeout(() => AOS.refresh(), 100); 
+            }
+
+            async function loadPostContent(filename) {
+                homeView.style.display = 'none';
+                postView.style.display = 'block';
+
+                const response = await fetch(`posts/${filename}`);
+                if (response.ok) {
+                    const markdown = await response.text();
+                    postView.innerHTML = `
+                        <a href="#" class="back-link">← Back to Home</a>
+                        <div class="post-content">${marked.parse(markdown)}</div>
+                    `;
+                } else {
+                    postView.innerHTML = `<p>Error: Post file not found.</p>`;
+                }
+                window.scrollTo(0, 0);
+            }
+
+            function handleRouteChange() {
+                const hash = window.location.hash.substring(1);
+                if (hash) {
+                    loadPostContent(`${hash}.md`);
+                } else {
+                    homeView.style.display = 'block';
+                    postView.style.display = 'none';
+                    displayPostList();
+                }
+            }
+            
+            window.addEventListener('hashchange', handleRouteChange);
+            handleRouteChange(); 
+        });
+    </script>
+</body>
+</html>
